@@ -18,7 +18,7 @@ class Environment(object):
         self.num_players = 0
         self.players_dict = {
             1: CarSprite('car4.png', [300, 375]),
-            2: CarSprite('car2.jpg', [700, 375])
+            2: CarSprite('car5.jpeg', [700, 375])
         }
 
     def register(self, agent):
