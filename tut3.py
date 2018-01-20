@@ -27,10 +27,12 @@ class CarSprite(pygame.sprite.Sprite):
         if self.speed < self.MAX_REVERSE_SPEED:
             self.speed = self.MAX_REVERSE_SPEED
         if hit_wall:
-            self.speed = 0
+            self.speed = - self.speed
         self.direction += (self.k_right + self.k_left)
         x, y = self.position
         rad = self.direction * math.pi / 180
+        if (x<=10 or x>=1014 or y<=10 or y>= 758):
+            self.speed = - self.speed
         x += self.speed*math.sin(rad)
         y += self.speed*math.cos(rad)
         self.position = (x, y)
@@ -103,10 +105,10 @@ class PadSprite(pygame.sprite.Sprite):
 
 
 pads = [
-    PadSprite((0,384),(5,768)),
-    PadSprite((1024,384),(5,768)),
-    PadSprite((512,0),(1024,5)),
-    PadSprite((512,768),(1024,5)),
+    # PadSprite((0,384),(5,768)),
+    # PadSprite((1024,384),(5,768)),
+    # PadSprite((512,0),(1024,5)),
+    # PadSprite((512,768),(1024,5)),
     PadSprite((200, 200),(100,150)),
     PadSprite((800, 200),(100,150)),
     PadSprite((200, 600),(100,150)),
@@ -114,7 +116,8 @@ pads = [
 ]
 pad_group = pygame.sprite.RenderPlain(*pads)
 
-bullet_group = pygame.sprite.RenderPlain()
+bullets = []
+bullet_group = pygame.sprite.RenderPlain(*bullets)
 
 # CREATE A CAR AND RUN
 rect = screen.get_rect()
@@ -146,12 +149,13 @@ while 1:
     # RENDERING
     screen.fill((0,0,0))
 
+    car_collision = pygame.sprite.collide_rect(car,car2)
     pad_collisions = pygame.sprite.spritecollide(car, pad_group, False)
     pad_group.update(pad_collisions)
     pad_group.draw(screen)
 
     bullet_collisions = pygame.sprite.spritecollide(car, bullet_group, True)
-    car.update(deltat, len(bullet_collisions), len(pad_collisions) !=0)
+    car.update(deltat, len(bullet_collisions), len(pad_collisions)!=0 or car_collision)
     # for bullet_sprite in collisions:
     #     bullet_sprite.kill()
 
@@ -168,5 +172,6 @@ while 1:
 
     bullet_group.update(deltat)
     bullet_group.draw(screen)
+
     pygame.display.flip()
 
