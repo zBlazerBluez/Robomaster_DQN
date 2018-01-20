@@ -19,6 +19,8 @@ class CarSprite(pygame.sprite.Sprite):
         self.int_bullets = 100;
         self.rect = self.src_image.get_rect()
         self.life = 100
+        self.image = self.src_image
+
     def update(self, deltat, num_hit, hit_wall=False):
         # SIMULATION
         self.speed += (self.k_up + self.k_down)
@@ -67,7 +69,7 @@ class CarSprite(pygame.sprite.Sprite):
         elif event  == 'down': 
             self.k_down     = 4
         elif event  == 'space':
-            return car.shoot()
+            return self.shoot()
 
 class BulletSprite(pygame.sprite.Sprite):
     SPEED = -20
@@ -99,79 +101,80 @@ class PadSprite(pygame.sprite.Sprite):
         self.hit = pygame.transform.scale(self.hit,size)
         self.rect = pygame.Rect(self.normal.get_rect())
         self.rect.center = position
+        self.image = self.normal
+
     def update(self, hit_list):
         if self in hit_list: self.image = self.hit
         else: self.image = self.normal
 
 
-pads = [
-    # PadSprite((0,384),(5,768)),
-    # PadSprite((1024,384),(5,768)),
-    # PadSprite((512,0),(1024,5)),
-    # PadSprite((512,768),(1024,5)),
-    PadSprite((200, 200),(100,150)),
-    PadSprite((800, 200),(100,150)),
-    PadSprite((200, 600),(100,150)),
-    PadSprite((800, 600),(100,150))
-]
-pad_group = pygame.sprite.RenderPlain(*pads)
+# pads = [
+#     # PadSprite((0,384),(5,768)),
+#     # PadSprite((1024,384),(5,768)),
+#     # PadSprite((512,0),(1024,5)),
+#     # PadSprite((512,768),(1024,5)),
+#     PadSprite((200, 200),(100,150)),
+#     PadSprite((800, 200),(100,150)),
+#     PadSprite((200, 600),(100,150)),
+#     PadSprite((800, 600),(100,150))
+# ]
+# pad_group = pygame.sprite.RenderPlain(*pads)
 
-bullets = []
-bullet_group = pygame.sprite.RenderPlain(*bullets)
+# bullets = []
+# bullet_group = pygame.sprite.RenderPlain(*bullets)
 
-# CREATE A CAR AND RUN
-rect = screen.get_rect()
-car = CarSprite('car4.png', rect.center)
-car2 = CarSprite('car2.jpg', rect.center)
+# # CREATE A CAR AND RUN
+# rect = screen.get_rect()
+# car = CarSprite('car4.png', rect.center)
+# car2 = CarSprite('car2.jpg', rect.center)
 
-cars = [car, car2]
-car_group = pygame.sprite.RenderPlain(*cars)
-while 1:
-    # USER INPUT
-    deltat = clock.tick(30)
-    for event in pygame.event.get():
-        if not hasattr(event, 'key'): continue
-        down = event.type == KEYDOWN
-        if event.key == K_RIGHT: 
-            car.k_right = down * -5
-        elif event.key == K_LEFT: 
-            car.k_left = down * 5
-        elif event.key == K_UP: 
-            car.k_up = down * -4
-        elif event.key == K_DOWN: 
-            car.k_down = down * 4
-        elif event.key == K_SPACE:
-            bullet = car.shoot()
-            if bullet != None:
-                bullet_group.add(bullet)
-        elif event.key == K_ESCAPE: 
-            sys.exit(0)
-    # RENDERING
-    screen.fill((0,0,0))
+# cars = [car, car2]
+# car_group = pygame.sprite.RenderPlain(*cars)
+# while 1:
+#     # USER INPUT
+#     deltat = clock.tick(30)
+#     for event in pygame.event.get():
+#         if not hasattr(event, 'key'): continue
+#         down = event.type == KEYDOWN
+#         if event.key == K_RIGHT: 
+#             car.k_right = down * -5
+#         elif event.key == K_LEFT: 
+#             car.k_left = down * 5
+#         elif event.key == K_UP: 
+#             car.k_up = down * -4
+#         elif event.key == K_DOWN: 
+#             car.k_down = down * 4
+#         elif event.key == K_SPACE:
+#             bullet = car.shoot()
+#             if bullet != None:
+#                 bullet_group.add(bullet)
+#         elif event.key == K_ESCAPE: 
+#             sys.exit(0)
+#     # RENDERING
+#     screen.fill((0,0,0))
 
-    car_collision = pygame.sprite.collide_rect(car,car2)
-    pad_collisions = pygame.sprite.spritecollide(car, pad_group, False)
-    pad_group.update(pad_collisions)
-    pad_group.draw(screen)
+#     car_collision = pygame.sprite.collide_rect(car,car2)
+#     pad_collisions = pygame.sprite.spritecollide(car, pad_group, False)
+#     pad_group.update(pad_collisions)
+#     pad_group.draw(screen)
 
-    bullet_collisions = pygame.sprite.spritecollide(car, bullet_group, True)
-    car.update(deltat, len(bullet_collisions), len(pad_collisions)!=0 or car_collision)
-    # for bullet_sprite in collisions:
-    #     bullet_sprite.kill()
+#     bullet_collisions = pygame.sprite.spritecollide(car, bullet_group, True)
+#     car.update(deltat, len(bullet_collisions), len(pad_collisions)!=0 or car_collision)
+#     # for bullet_sprite in collisions:
+#     #     bullet_sprite.kill()
 
-    bullet_collisions = pygame.sprite.spritecollide(car2, bullet_group, True)
-    car2.update(deltat, len(bullet_collisions))
-    # for bullet_sprite in collisions:
-    #     bullet_sprite.kill()
+#     bullet_collisions = pygame.sprite.spritecollide(car2, bullet_group, True)
+#     car2.update(deltat, len(bullet_collisions))
+#     # for bullet_sprite in collisions:
+#     #     bullet_sprite.kill()
 
-    car_group.draw(screen)
+#     car_group.draw(screen)
 
 
 
-    pygame.sprite.groupcollide(bullet_group, pad_group, True, False)
+#     pygame.sprite.groupcollide(bullet_group, pad_group, True, False)
 
-    bullet_group.update(deltat)
-    bullet_group.draw(screen)
+#     bullet_group.update(deltat)
+#     bullet_group.draw(screen)
 
-    pygame.display.flip()
-
+#     pygame.display.flip()

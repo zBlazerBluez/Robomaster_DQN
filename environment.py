@@ -17,8 +17,8 @@ class Environment(object):
 
         self.num_players = 0
         self.players_dict = {
-            1: CarSprite('car4.png', self.screen.get_rect().center),
-            2: CarSprite('car2.jpg', self.screen.get_rect().center)
+            1: CarSprite('car4.png', [300, 375]),
+            2: CarSprite('car2.jpg', [700, 375])
         }
 
     def register(self, agent):
@@ -27,10 +27,10 @@ class Environment(object):
 
     def reset(self):
         pads = [
-            PadSprite((0,384),(5,768)),
-            PadSprite((1024,384),(5,768)),
-            PadSprite((512,0),(1024,5)),
-            PadSprite((512,768),(1024,5)),
+            # PadSprite((0,384),(5,768)),
+            # PadSprite((1024,384),(5,768)),
+            # PadSprite((512,0),(1024,5)),
+            # PadSprite((512,768),(1024,5)),
             PadSprite((200, 200),(100,150)),
             PadSprite((800, 200),(100,150)),
             PadSprite((200, 600),(100,150)),
@@ -54,9 +54,15 @@ class Environment(object):
             bullet = self.players_dict[player_id].act(action)
             if bullet != None:
                 self.bullets_group.add(bullet)
+
+        # Temporarily workaround.
+        car_collision = pygame.sprite.collide_rect(self.players_dict[1], self.players_dict[2])
         for car in self.cars_group.sprites():
-            collisions = pygame.sprite.spritecollide(car, self.bullets_group, True)
-            car.update(self.delta_t, len(collisions))
+            bullet_collisions = pygame.sprite.spritecollide(car, self.bullets_group, True)
+            pad_collisions = pygame.sprite.spritecollide(car, self.pads_group, False)
+            self.pads_group.update(pad_collisions)
+            car.update(self.delta_t, len(bullet_collisions), len(pad_collisions) != 0 or car_collision)
+
         next_state = None
         reward = None
         done = False
