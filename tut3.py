@@ -19,13 +19,15 @@ class CarSprite(pygame.sprite.Sprite):
         self.int_bullets = 100;
         self.rect = self.src_image.get_rect()
         self.life = 100
-    def update(self, deltat, int_hit):
+    def update(self, deltat, num_hit, hit_wall=False):
         # SIMULATION
         self.speed += (self.k_up + self.k_down)
         if self.speed > self.MAX_FORWARD_SPEED:
             self.speed = self.MAX_FORWARD_SPEED
         if self.speed < self.MAX_REVERSE_SPEED:
             self.speed = self.MAX_REVERSE_SPEED
+        if hit_wall:
+            self.speed = 0
         self.direction += (self.k_right + self.k_left)
         x, y = self.position
         rad = self.direction * math.pi / 180
@@ -36,8 +38,8 @@ class CarSprite(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = self.position
 
-        if int_hit != 0:
-            for i in range(int_hit):
+        if num_hit != 0:
+            for i in range(num_hit):
                 self.life -=1
                 print('Hit! -1 life, current life is ',self.life)
 
@@ -52,6 +54,18 @@ class CarSprite(pygame.sprite.Sprite):
             x_bullet = x_car - 80*math.sin(rad_car)
             y_bullet = y_car - 80*math.cos(rad_car)
             return BulletSprite((x_bullet, y_bullet),self.direction)
+
+    def act(self, event):
+        if  event   == 'right': 
+            self.k_right    = -5
+        elif event  == 'left': 
+            self.k_left     =  5
+        elif event  == 'up': 
+            self.k_up       =  -4
+        elif event  == 'down': 
+            self.k_down     = 4
+        elif event  == 'space':
+            return car.shoot()
 
 class BulletSprite(pygame.sprite.Sprite):
     SPEED = -20
@@ -75,12 +89,12 @@ class BulletSprite(pygame.sprite.Sprite):
 
 
 class PadSprite(pygame.sprite.Sprite):
-    normal = pygame.image.load('pad_normal.png')
-    normal = pygame.transform.scale(normal,(100,150))
+    normal = pygame.image.load('pad_normal.png')   
     hit = pygame.image.load('pad_hit.png')
-    hit = pygame.transform.scale(hit,(100,150))
-    def __init__(self, position):
+    def __init__(self, position,size):
         pygame.sprite.Sprite.__init__(self)
+        self.normal = pygame.transform.scale(self.normal,size)
+        self.hit = pygame.transform.scale(self.hit,size)
         self.rect = pygame.Rect(self.normal.get_rect())
         self.rect.center = position
     def update(self, hit_list):
@@ -89,10 +103,14 @@ class PadSprite(pygame.sprite.Sprite):
 
 
 pads = [
-    PadSprite((200, 200)),
-    PadSprite((800, 200)),
-    PadSprite((200, 600)),
-    PadSprite((800, 600)),
+    PadSprite((0,384),(5,768)),
+    PadSprite((1024,384),(5,768)),
+    PadSprite((512,0),(1024,5)),
+    PadSprite((512,768),(1024,5)),
+    PadSprite((200, 200),(100,150)),
+    PadSprite((800, 200),(100,150)),
+    PadSprite((200, 600),(100,150)),
+    PadSprite((800, 600),(100,150))
 ]
 pad_group = pygame.sprite.RenderPlain(*pads)
 
@@ -127,21 +145,26 @@ while 1:
             sys.exit(0)
     # RENDERING
     screen.fill((0,0,0))
-    collisions = pygame.sprite.spritecollide(car, bullet_group, True)
-    car.update(deltat, len(collisions))
+
+    pad_collisions = pygame.sprite.spritecollide(car, pad_group, False)
+    pad_group.update(pad_collisions)
+    pad_group.draw(screen)
+
+    bullet_collisions = pygame.sprite.spritecollide(car, bullet_group, True)
+    car.update(deltat, len(bullet_collisions), len(pad_collisions) !=0)
     # for bullet_sprite in collisions:
     #     bullet_sprite.kill()
 
-    collisions = pygame.sprite.spritecollide(car2, bullet_group, True)
-    car2.update(deltat, len(collisions))
+    bullet_collisions = pygame.sprite.spritecollide(car2, bullet_group, True)
+    car2.update(deltat, len(bullet_collisions))
     # for bullet_sprite in collisions:
     #     bullet_sprite.kill()
 
     car_group.draw(screen)
 
-    collisions = pygame.sprite.spritecollide(car, pad_group, False)
-    pad_group.update(collisions)
-    pad_group.draw(screen)
+
+
+    pygame.sprite.groupcollide(bullet_group, pad_group, True, False)
 
     bullet_group.update(deltat)
     bullet_group.draw(screen)
