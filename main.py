@@ -1,4 +1,7 @@
+from environment import Environment
+import random
 import pygame
+from pygame.locals import *
 
 class HumanAgent(object):
     def __init__(self, actions_space):
@@ -30,7 +33,7 @@ class RandomAgent(object):
         self.player_id = None
 
     def act(self):
-        return (self.player_id, actions_space.sample())
+        return (self.player_id, random.choice(self.actions_space))
 
 if __name__ == '__main__':
     env = Environment()
