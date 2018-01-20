@@ -61,13 +61,13 @@ class CarSprite(pygame.sprite.Sprite):
 
     def act(self, event):
         if  event   == 'right': 
-            self.k_right    = -5
+            self.k_right    = -5 if self.k_right == 0 else 0
         elif event  == 'left': 
-            self.k_left     =  5
+            self.k_left     =  5 if self.k_left == 0 else 0
         elif event  == 'up': 
-            self.k_up       =  -4
+            self.k_up       =  -4 if self.k_up == 0 else 0
         elif event  == 'down': 
-            self.k_down     = 4
+            self.k_down     = 4 if self.k_down == 0 else 0
         elif event  == 'space':
             return self.shoot()
 

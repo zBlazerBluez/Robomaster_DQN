@@ -12,7 +12,7 @@ class HumanAgent(object):
         action = None
         for event in pygame.event.get():
             if not hasattr(event, 'key'): continue
-            if event.type != KEYDOWN: continue
+            # if event.type != KEYDOWN: continue
             if event.key == K_RIGHT: 
                 action = 'right'
             elif event.key == K_LEFT: 
@@ -33,7 +33,7 @@ class RandomAgent(object):
         self.player_id = None
 
     def act(self):
-        return (self.player_id, random.choice(self.actions_space))
+        return (self.player_id, None)
 
 if __name__ == '__main__':
     env = Environment()
@@ -48,6 +48,7 @@ if __name__ == '__main__':
     done = False
     while not done:
         env.render()
+        env.clock.tick(30)
         human_action = human_agent.act()
         random_action = random_agent.act()
         ob, reward, done = env.step([human_action, random_action])

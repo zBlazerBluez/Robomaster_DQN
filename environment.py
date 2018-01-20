@@ -63,6 +63,9 @@ class Environment(object):
             self.pads_group.update(pad_collisions)
             car.update(self.delta_t, len(bullet_collisions), len(pad_collisions) != 0 or car_collision)
 
+        pygame.sprite.groupcollide(self.bullets_group, self.pads_group, True, False)
+        self.bullets_group.update(self.delta_t)
+
         next_state = None
         reward = None
         done = False
